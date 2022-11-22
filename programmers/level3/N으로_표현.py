@@ -1,9 +1,9 @@
 """
 2022-07-03
-Level 3. 문자열 압축
+Level 3. N으로 표현
 """
 
 
-def solution(lines):
+def solution(N, number):
     answer = 0
     return answer
