@@ -1,4 +1,5 @@
 import heapq
+from collections import deque
 
 vertex = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]
 matrix = [[0 for _ in range(13)] for _ in range(13)]
@@ -7,36 +8,26 @@ STAY, ADJACENT_STEP, DIAGONAL_STEP = 1, 2, 3
 
 
 def solution(numbers: str) -> int:
-    queue = []
-    heapq.heappush(queue, [0, 1, 0, 1, 2, 0])
+    queue = deque([[0, 1, 0, 1, 2, 0]])
     answer = 0
 
     while queue:
-        score, left_x, left_y, right_x, right_y, number_index = heapq.heappop(queue)
-        start_left, start_right = vertex[left_x][left_y], vertex[right_x][right_y]
+        score, left_x, left_y, right_x, right_y, number_index = queue.popleft()
 
+        print(f'left: {vertex[left_x][left_y]}, right: {vertex[right_x][right_y]}, score:{score}, number_index : {number_index}')
         if number_index >= len(numbers):
-            return score if answer == 0 else min(answer, score)
+            answer = score if answer == 0 else min(answer, score)
+            continue
 
         number = int(numbers[number_index]) or 11
 
         _left_x, _left_y, left_score = find_next(left_x, left_y, number)
+        queue.append([score + left_score, _left_x, _left_y, right_x, right_y, number_index + 1])
+
         _right_x, _right_y, right_score = find_next(right_x, right_y, number)
+        queue.append([score + right_score, left_x, left_y, _right_x, _right_y, number_index + 1])
 
-        if left_score == right_score:
-            heapq.heappush(queue, [score + left_score, _left_x, _left_y, right_x, right_y, number_index + 1])
-            _set_matrix(start_left, number, left_score)
-
-            heapq.heappush(queue, [score + right_score, left_x, left_y, _right_x, _right_y, number_index + 1])
-            _set_matrix(start_right, number, right_score)
-
-        if left_score < right_score:
-            heapq.heappush(queue, [score + left_score, _left_x, _left_y, right_x, right_y, number_index + 1])
-            _set_matrix(start_left, number, left_score)
-
-        if right_score < left_score:
-            heapq.heappush(queue, [score + right_score, left_x, left_y, _right_x, _right_y, number_index + 1])
-            _set_matrix(start_right, number, right_score)
+    return answer
 
 
 def find_next(x, y, destination):
@@ -85,4 +76,4 @@ def _set_matrix(x, y, score):
     matrix[y][x] = score if matrix[y][x] == 0 else min(matrix[y][x], score)
 
 
-print(solution('0123'))
+print(solution('10252525252525'))
